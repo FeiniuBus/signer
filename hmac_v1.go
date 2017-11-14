@@ -243,7 +243,7 @@ func (ctx *signingCtx) buildCredentialString() {
 }
 
 func (ctx *signingCtx) buildCanonicalString() {
-	uri := getURIPath(ctx.URL)
+	uri := ctx.URL.EscapedPath()
 	if !ctx.DisableURIPathEscaping {
 		uri = rest.EscapePath(uri, false)
 	}
@@ -341,20 +341,4 @@ func stripExcessSpaces(vals []string) {
 
 		vals[i] = string(buf[:m])
 	}
-}
-
-func getURIPath(u *url.URL) string {
-	var uri string
-
-	if len(u.Opaque) > 0 {
-		uri = "/" + strings.Join(strings.Split(u.Opaque, "/")[3:], "/")
-	} else {
-		uri = u.EscapedPath()
-	}
-
-	if len(uri) == 0 {
-		uri = "/"
-	}
-
-	return uri
 }

@@ -27,15 +27,17 @@ type Provider interface {
 
 // A Credentials provides synchronous safe retrieval of credentials Value.
 type Credentials struct {
-	creds    Value
-	m        sync.Mutex
-	provider Provider
+	creds        Value
+	forceRefresh bool
+	m            sync.Mutex
+	provider     Provider
 }
 
 // NewCredentials returns a pointer to a new Credentials with the provider set.
 func NewCredentials(provider Provider) *Credentials {
 	return &Credentials{
-		provider: provider,
+		provider:     provider,
+		forceRefresh: true,
 	}
 }
 
@@ -51,6 +53,7 @@ func (c *Credentials) Get() (Value, error) {
 			return Value{}, err
 		}
 		c.creds = creds
+		c.forceRefresh = false
 	}
 
 	return c.creds, nil
@@ -66,5 +69,5 @@ func (c *Credentials) IsExpired() bool {
 }
 
 func (c *Credentials) isExpired() bool {
-	return c.provider.IsExpired()
+	return c.forceRefresh || c.provider.IsExpired()
 }
