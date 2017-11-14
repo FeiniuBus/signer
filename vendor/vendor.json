@@ -33,14 +33,6 @@
 			"revisionTime": "2017-10-02T20:02:53Z"
 		},
 		{
-			"checksumSHA1": "JVGDxPn66bpe6xEiexs1r+y6jF0=",
-			"path": "github.com/patrickmn/go-cache",
-			"revision": "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0",
-			"revisionTime": "2017-07-22T04:01:10Z",
-			"version": "=v2.1.0",
-			"versionExact": "v2.1.0"
-		},
-		{
 			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
 			"path": "github.com/pmezard/go-difflib/difflib",
 			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
