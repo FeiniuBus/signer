@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/private/protocol/rest"
-
 	"github.com/FeiniuBus/log"
 	"github.com/FeiniuBus/signer/credentials"
 )
@@ -23,8 +21,8 @@ const (
 	shortTimeFormat   = "20060102"
 	emptyStringSHA256 = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 
-	XFeiniuBusDateHeader = "X-FeiniuBus-Date"
-	AuthorizationHeader  = "Authorization"
+	xFeiniuBusDateHeader = "X-FeiniuBus-Date"
+	authorizationHeader  = "Authorization"
 )
 
 var ignoredHeaders = rules{
@@ -73,7 +71,7 @@ type HMACSignerV1 struct {
 	currentTimeFn func() time.Time
 }
 
-// NewHMACSignerV1 returns a HMACSigner pointer
+// NewHMACSignerV1 returns a HMACSignerV1 pointer
 func NewHMACSignerV1(creds *credentials.Credentials, options ...func(*HMACSignerV1)) *HMACSignerV1 {
 	v1 := &HMACSignerV1{
 		Credentials: creds,
@@ -117,10 +115,6 @@ func (v1 *HMACSignerV1) Sign(r *Request, exp time.Duration) (*HMACSigningResult,
 	}
 
 	return v1.signWithBody(r, exp, currentTimeFn())
-}
-
-func (v1 *HMACSignerV1) Verify(r *Request) bool {
-	return true
 }
 
 func (v1 *HMACSignerV1) signWithBody(r *Request, exp time.Duration, signTime time.Time) (*HMACSigningResult, error) {
@@ -177,8 +171,8 @@ func (ctx *signingCtx) build(disableHeaderHoisting bool) *HMACSigningResult {
 		Signature: ctx.signature,
 		Header:    http.Header{},
 	}
-	res.Header.Set(XFeiniuBusDateHeader, ctx.formattedTime)
-	res.Header.Set(AuthorizationHeader, strings.Join(parts, ","))
+	res.Header.Set(xFeiniuBusDateHeader, ctx.formattedTime)
+	res.Header.Set(authorizationHeader, strings.Join(parts, ","))
 
 	return res
 }
@@ -247,9 +241,9 @@ func (ctx *signingCtx) buildCredentialString() {
 }
 
 func (ctx *signingCtx) buildCanonicalString() {
-	uri := ctx.URL.EscapedPath()
+	uri := ctx.URL.Path
 	if !ctx.DisableURIPathEscaping {
-		uri = rest.EscapePath(uri, false)
+		uri = ctx.URL.EscapedPath()
 	}
 
 	ctx.canonicalString = strings.Join([]string{

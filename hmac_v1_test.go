@@ -7,7 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/FeiniuBus/log"
 	"github.com/FeiniuBus/signer/credentials"
+	"github.com/stretchr/testify/assert"
 )
 
 type body struct {
@@ -29,9 +31,21 @@ func TestSignRequest(t *testing.T) {
 		t.Errorf("Sign error: %v", err)
 	}
 
-	if date := res.Header.Get(XFeiniuBusDateHeader); len(date) <= 0 {
+	if date := res.Header.Get(xFeiniuBusDateHeader); len(date) <= 0 {
 		t.Errorf("Can't find signature time")
 	}
+
+	for k, v := range res.Header {
+		req.Header.Set(k, v[0])
+	}
+
+	validator := NewHMACValidatorV1(func(id string) (string, error) {
+		return "SECRET", nil
+	}, func(v *HMACValidatorV1) {
+		v.Logger, _ = log.New(false)
+	})
+
+	assert.True(t, validator.Verify(req), "Expect is true")
 }
 
 func buildRequest(body string) *Request {

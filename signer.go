@@ -21,8 +21,12 @@ type HMACSigningResult struct {
 	Header    http.Header
 }
 
-// A Signer is the interface for any component which will provide signature algorithm.
+// A HMACSigner is the interface for any component which will provide HMAC signature algorithm.
 type HMACSigner interface {
 	Sign(r *Request, exp time.Duration) (*HMACSigningResult, error)
+}
+
+// A HMACValidator is the interface for any component which will provide HMAC signature validate.
+type HMACValidator interface {
 	Verify(r *Request) bool
 }
