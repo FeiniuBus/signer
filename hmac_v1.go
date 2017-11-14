@@ -119,6 +119,10 @@ func (v1 *HMACSignerV1) Sign(r *Request, exp time.Duration) (*HMACSigningResult,
 	return v1.signWithBody(r, exp, currentTimeFn())
 }
 
+func (v1 *HMACSignerV1) Verify(r *Request) bool {
+	return true
+}
+
 func (v1 *HMACSignerV1) signWithBody(r *Request, exp time.Duration, signTime time.Time) (*HMACSigningResult, error) {
 	ctx := &signingCtx{
 		URL:                    r.URL,

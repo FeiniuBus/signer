@@ -24,4 +24,5 @@ type HMACSigningResult struct {
 // A Signer is the interface for any component which will provide signature algorithm.
 type HMACSigner interface {
 	Sign(r *Request, exp time.Duration) (*HMACSigningResult, error)
+	Verify(r *Request) bool
 }
