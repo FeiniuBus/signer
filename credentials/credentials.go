@@ -10,7 +10,7 @@ type Value struct {
 	Identifier string
 
 	// Key is the signature key
-	Key []byte
+	Key string
 }
 
 // A Provider is the interface for any component which will provide credentials
