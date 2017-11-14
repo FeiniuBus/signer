@@ -1,0 +1,22 @@
+language: go
+
+sudo: required
+
+go:
+  - 1.8.x
+  - 1.9.x
+  - tip
+
+install:
+  - make get-deps
+
+script:
+  - make unit-with-race-cover
+
+matrix:
+  allow_failures:
+    - go: tip
+
+branches:
+  only:
+    - master
