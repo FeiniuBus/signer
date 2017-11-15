@@ -3,6 +3,7 @@ package signer
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -17,13 +18,13 @@ type body struct {
 	Age  int
 }
 
-func TestSignRequest(t *testing.T) {
+func TestSignPutRequest(t *testing.T) {
 	b := body{
 		Name: "xqlun",
 		Age:  31,
 	}
 	data, _ := json.Marshal(b)
-	req := buildRequest(string(data))
+	req := buildPutRequest(string(data))
 	signer := buildSigner()
 
 	res, err := signer.Sign(req, 10*time.Second)
@@ -48,7 +49,51 @@ func TestSignRequest(t *testing.T) {
 	assert.True(t, validator.Verify(req), "Expect is true")
 }
 
-func buildRequest(body string) *Request {
+func TestSignGetRequest(t *testing.T) {
+	values := url.Values{}
+	values.Set("id", "uuid")
+	values.Set("type", "Topic")
+
+	req := buildGetRequest(values)
+	signer := buildSigner()
+
+	res, err := signer.Sign(req, 10*time.Second)
+	if err != nil {
+		t.Errorf("Sign error: %v", err)
+	}
+
+	for k, v := range res.Header {
+		req.Header.Set(k, v[0])
+	}
+
+	validator := NewHMACValidatorV1(func(id string) (string, error) {
+		return "SECRET", nil
+	}, func(v *HMACValidatorV1) {
+		v.Logger, _ = log.New(false)
+	})
+
+	assert.True(t, validator.Verify(req), "Expect is true")
+}
+
+func buildGetRequest(values url.Values) *Request {
+	endpoint := "https://dc.feiniubus.com:5100/fns/v1/topic"
+	uri, _ := url.Parse(endpoint)
+	uri.RawQuery = values.Encode()
+	request, _ := http.NewRequest("GET", uri.String(), nil)
+	request.Header.Add("Accept", "application/json")
+	request.Header.Add("Accept-Encoding", "gzip")
+
+	req := &Request{
+		Method: request.Method,
+		URL:    request.URL,
+		Body:   nil,
+		Header: request.Header,
+	}
+
+	return req
+}
+
+func buildPutRequest(body string) *Request {
 	endpoint := "https://dc.feiniubus.com:5100/fns/v1/test/update?id=1232232"
 	reader := strings.NewReader(body)
 	request, _ := http.NewRequest("PUT", endpoint, reader)
