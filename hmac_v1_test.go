@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/FeiniuBus/log"
-	"github.com/FeiniuBus/signer/credentials"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,10 +26,7 @@ func TestSignPutRequest(t *testing.T) {
 	req := buildPutRequest(string(data))
 	signer := buildSigner()
 
-	res, err := signer.Sign(req, 10*time.Second)
-	if err != nil {
-		t.Errorf("Sign error: %v", err)
-	}
+	res := signer.Sign(req, 10*time.Second)
 
 	if date := res.Header.Get(xFeiniuBusDateHeader); len(date) <= 0 {
 		t.Errorf("Can't find signature time")
@@ -57,10 +53,7 @@ func TestSignGetRequest(t *testing.T) {
 	req := buildGetRequest(values)
 	signer := buildSigner()
 
-	res, err := signer.Sign(req, 10*time.Second)
-	if err != nil {
-		t.Errorf("Sign error: %v", err)
-	}
+	res := signer.Sign(req, 10*time.Second)
 
 	for k, v := range res.Header {
 		req.Header.Set(k, v[0])
@@ -111,5 +104,5 @@ func buildPutRequest(body string) *Request {
 }
 
 func buildSigner() HMACSigner {
-	return NewHMACSignerV1(credentials.NewStaticCredentials("AKID", "SECRET"))
+	return NewHMACSignerV1("AKID", "SECRET")
 }

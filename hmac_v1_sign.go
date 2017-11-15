@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/FeiniuBus/log"
-	"github.com/FeiniuBus/signer/credentials"
 )
 
 const (
@@ -62,7 +61,8 @@ var allowedQueryHoisting = inclusiveRules{
 }
 
 type HMACSignerV1 struct {
-	Credentials            *credentials.Credentials
+	Key                    string
+	Identifier             string
 	Logger                 *log.Logger
 	DisableHeaderHoisting  bool
 	DisableURIPathEscaping bool
@@ -72,9 +72,10 @@ type HMACSignerV1 struct {
 }
 
 // NewHMACSignerV1 returns a HMACSignerV1 pointer
-func NewHMACSignerV1(creds *credentials.Credentials, options ...func(*HMACSignerV1)) *HMACSignerV1 {
+func NewHMACSignerV1(id, key string, options ...func(*HMACSignerV1)) *HMACSignerV1 {
 	v1 := &HMACSignerV1{
-		Credentials: creds,
+		Key:        key,
+		Identifier: id,
 	}
 
 	for _, option := range options {
@@ -96,7 +97,8 @@ type signingCtx struct {
 
 	DisableURIPathEscaping bool
 
-	credValues         credentials.Value
+	key                string
+	identifier         string
 	formattedTime      string
 	formattedShortTime string
 	credentialString   string
@@ -108,7 +110,7 @@ type signingCtx struct {
 	signature          string
 }
 
-func (v1 *HMACSignerV1) Sign(r *Request, exp time.Duration) (*HMACSigningResult, error) {
+func (v1 *HMACSignerV1) Sign(r *Request, exp time.Duration) *HMACSigningResult {
 	currentTimeFn := v1.currentTimeFn
 	if currentTimeFn == nil {
 		currentTimeFn = time.Now
@@ -117,7 +119,7 @@ func (v1 *HMACSignerV1) Sign(r *Request, exp time.Duration) (*HMACSigningResult,
 	return v1.signWithBody(r, exp, currentTimeFn())
 }
 
-func (v1 *HMACSignerV1) signWithBody(r *Request, exp time.Duration, signTime time.Time) (*HMACSigningResult, error) {
+func (v1 *HMACSignerV1) signWithBody(r *Request, exp time.Duration, signTime time.Time) *HMACSigningResult {
 	ctx := &signingCtx{
 		URL:                    r.URL,
 		Header:                 r.Header,
@@ -127,19 +129,15 @@ func (v1 *HMACSignerV1) signWithBody(r *Request, exp time.Duration, signTime tim
 		ExpireTime:             exp,
 		Method:                 r.Method,
 		DisableURIPathEscaping: v1.DisableURIPathEscaping,
+		key:        v1.Key,
+		identifier: v1.Identifier,
 	}
 
 	for key := range ctx.Query {
 		sort.Strings(ctx.Query[key])
 	}
 
-	var err error
-	ctx.credValues, err = v1.Credentials.Get()
-	if err != nil {
-		return nil, err
-	}
-
-	return ctx.build(v1.DisableHeaderHoisting), nil
+	return ctx.build(v1.DisableHeaderHoisting)
 }
 
 func (ctx *signingCtx) build(disableHeaderHoisting bool) *HMACSigningResult {
@@ -162,7 +160,7 @@ func (ctx *signingCtx) build(disableHeaderHoisting bool) *HMACSigningResult {
 	ctx.buildSignature()
 
 	parts := []string{
-		authHeaderPrefix + " Credential=" + ctx.credValues.Identifier + "/" + ctx.credentialString,
+		authHeaderPrefix + " Credential=" + ctx.identifier + "/" + ctx.credentialString,
 		"SignedHeaders=" + ctx.signedHeaders,
 		"Signature=" + ctx.signature,
 	}
@@ -266,7 +264,7 @@ func (ctx *signingCtx) buildStringToSign() {
 }
 
 func (ctx *signingCtx) buildSignature() {
-	secret := ctx.credValues.Key
+	secret := ctx.key
 	date := makeHmac([]byte("FNBUS4"+secret), []byte(ctx.formattedShortTime))
 	credentials := makeHmac(date, []byte("feiniubus_request"))
 	signature := makeHmac(credentials, []byte(ctx.stringToSign))
