@@ -265,7 +265,7 @@ func (ctx *signingCtx) buildStringToSign() {
 
 func (ctx *signingCtx) buildSignature() {
 	secret := ctx.key
-	date := makeHmac([]byte("FNBUS4"+secret), []byte(ctx.formattedShortTime))
+	date := makeHmac([]byte("FNBUS1"+secret), []byte(ctx.formattedShortTime))
 	credentials := makeHmac(date, []byte("feiniubus_request"))
 	signature := makeHmac(credentials, []byte(ctx.stringToSign))
 	ctx.signature = hex.EncodeToString(signature)
