@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -35,6 +36,26 @@ func TestSignPutRequest(t *testing.T) {
 	for k, v := range res.Header {
 		req.Header.Set(k, v[0])
 	}
+
+	validator := NewHMACValidatorV1(func(id string) (string, error) {
+		return "SECRET", nil
+	}, func(v *HMACValidatorV1) {
+		v.Logger, _ = log.New(false)
+	})
+
+	assert.True(t, validator.Verify(req), "Expect is true")
+}
+
+func TestValidator(t *testing.T) {
+	b := body{
+		Name: "xqlun",
+		Age:  31,
+	}
+	data, _ := json.Marshal(b)
+	req := buildPutRequest(string(data))
+	req.Header.Set("Host", "dc.feiniubus.com:5100")
+	req.Header.Set("X-FeiniuBus-Date", "20171116T093341Z")
+	req.Header.Set("Authorization", "FNBUS1-HMAC-SHA256 Credential=AKID/20171116/feiniubus_request,SignedHeaders=accept;content-length;content-type;host,Signature=7ed9bb5b234d1dc2f4cdf6fa293e32603c0b190f90c2a9681e7b22eb8ef2ef4a")
 
 	validator := NewHMACValidatorV1(func(id string) (string, error) {
 		return "SECRET", nil
@@ -91,7 +112,7 @@ func buildPutRequest(body string) *Request {
 	reader := strings.NewReader(body)
 	request, _ := http.NewRequest("PUT", endpoint, reader)
 	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("Content-Length", string(len(body)))
+	request.Header.Add("Content-Length", strconv.Itoa(len(body)))
 	request.Header.Add("Accept", "application/json")
 
 	req := &Request{

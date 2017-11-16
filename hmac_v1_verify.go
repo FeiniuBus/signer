@@ -140,7 +140,7 @@ func (ctx *verifyCtx) verify(disableHeaderHoisting bool) bool {
 
 func (ctx *verifyCtx) buildSignature() {
 	secret := ctx.key
-	date := makeHmac([]byte("FNBUS4"+secret), []byte(ctx.formattedShortTime))
+	date := makeHmac([]byte("FNBUS1"+secret), []byte(ctx.formattedShortTime))
 	credentials := makeHmac(date, []byte(ctx.credSuffix))
 	signature := makeHmac(credentials, []byte(ctx.stringToSign))
 	ctx.signature = signature
