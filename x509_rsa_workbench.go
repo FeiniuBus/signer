@@ -1,6 +1,7 @@
 package signer
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 )
 
@@ -73,4 +74,13 @@ func (w *x509RSAWorkbench) CreateProjectFrom(url string, subject *x509Subject) (
 		return nil, err
 	}
 	return w.CreateProject(priKey, subject)
+}
+
+func (w *x509RSAWorkbench) GenerateRSAPrivateKey(size int) (*rsa.PrivateKey, error) {
+
+	priKey, err := rsa.GenerateKey(rand.Reader, size)
+	if err != nil {
+		return nil, err
+	}
+	return priKey, nil
 }
