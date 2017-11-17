@@ -43,24 +43,16 @@ func Newx509RSAWorkbenchFrom(privateKeyUrl string, rootCertificateUrl string) (R
 
 }
 
-func (w *x509RSAWorkbench) CreateProject(p *rsa.PrivateKey, subject *x509Subject) (RSAProject, error) {
-	issuor := Newx509RSACertIssuor(w.rootCA, p)
-	issueSubject := subject
-	if issueSubject == nil {
-		issueSubject = GetDefaultSubject()
-	}
-	cert, err := issuor.Issue(issueSubject)
-	if err != nil {
-		return nil, err
-	}
+func (w *x509RSAWorkbench) CreateProject(p *rsa.PrivateKey) RSAProject {
+
 	project := &x509RSAProject{
-		rootCA:      w.rootCA,
-		projectCert: cert,
+		rootCA: w.rootCA,
+		priKey: p,
 	}
-	return project, nil
+	return project
 }
 
-func (w *x509RSAWorkbench) CreateProjectFrom(url string, subject *x509Subject) (RSAProject, error) {
+func (w *x509RSAWorkbench) CreateProjectFrom(url string) (RSAProject, error) {
 	accessor, err := ParseURI(url)
 	if err != nil {
 		return nil, err
@@ -73,7 +65,7 @@ func (w *x509RSAWorkbench) CreateProjectFrom(url string, subject *x509Subject) (
 	if err != nil {
 		return nil, err
 	}
-	return w.CreateProject(priKey, subject)
+	return w.CreateProject(priKey), nil
 }
 
 func (w *x509RSAWorkbench) GenerateRSAPrivateKey(size int) (*rsa.PrivateKey, error) {
