@@ -10,7 +10,7 @@ import (
 
 var store RSAStore
 
-func Test_RSAServer(t *testing.T) {
+func DISABLETest_RSAServer(t *testing.T) {
 
 	root, err := Parsex509RSACert(getRootCA(), getRootKey())
 	if err != nil {
