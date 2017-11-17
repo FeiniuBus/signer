@@ -37,7 +37,7 @@ func ResolveFileURI(uri string) (RSACertAccessor, error) {
 }
 
 func (u *RSACertFileAccessor) Upload(body []byte) error {
-	f, err := os.Open(u.absolutePath)
+	f, err := os.Create(u.absolutePath)
 	if err != nil {
 		return err
 	}

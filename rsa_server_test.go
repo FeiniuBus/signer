@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 )
 
 var store RSAStore
@@ -30,6 +31,8 @@ func Test_RSAServer(t *testing.T) {
 	signature, url, err := client.Sign([]byte("testing"))
 	t.Log(base64.StdEncoding.EncodeToString(signature))
 	t.Log(url)
+
+	time.Sleep(time.Second * 3)
 }
 
 func Test_RSAServerParallel(t *testing.T) {

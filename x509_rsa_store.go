@@ -3,6 +3,8 @@ package signer
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"sync"
@@ -43,6 +45,17 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 			}
 			s.priKey = priKey
 			s.expire = time.Now().Add(time.Hour * 24 * 7)
+			accessor, err := ParseURI(fmt.Sprintf("files://~/.feiniubus/signer/%s_%d_%s.pem", s.Tag(), time.Now().Unix(), clientID))
+			if err != nil {
+				return nil, err
+			}
+			buf := x509.MarshalPKCS1PrivateKey(s.priKey)
+			keyPem := &pem.Block{
+				Type:  "PRIVATE KEY",
+				Bytes: buf,
+			}
+			key := pem.EncodeToMemory(keyPem)
+			_ = accessor.Upload(key)
 		}
 		s.mu.Unlock()
 	}
@@ -70,6 +83,13 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 
 	descriptor := Newx509RSADescriptor(clientID, fileName, s.priKey)
 	s.source.AddOrReplace(descriptor)
+
+	file, err := ParseURI(fmt.Sprintf("files://~/.feiniubus/signer/%s_%d_%s.crt", s.Tag(), time.Now().Unix(), clientID))
+	if err != nil {
+		return nil, err
+	}
+	_ = file.Upload(certificate.GetCertificateBytes())
+
 	s.mu.Unlock()
 	return descriptor, nil
 }

@@ -46,3 +46,11 @@ signature, key, err := client.Sign([]byte("testing"))
 * 客户端证书密钥编码 : ASN.1
 * 客户端证书格式 : x.509
 * 客户端证书编码 : ASN.1
+
+## 如何获得根证书 ?
+* 可以在Linux运行以下命令生成OpenSSL根证书
+```bash
+openssl genrsa -out rsakey.pem 2048 && \
+openssl rsa -in rsakey.pem -pubout -out rsakey.pub && \
+openssl req -x509 -new -days 365 -key rsakey.pem -out rootcert.crt
+```
