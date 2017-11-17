@@ -1,50 +1,16 @@
 package signer
 
-import (
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-)
-
 type x509RSAClient struct {
-	rootCA RSACert
-	priKey *rsa.PrivateKey
+	server     RSAServer
+	descriptor RSADescriptor
+	clientID   string
 }
 
-func (p *x509RSAClient) Sign(input []byte) ([]byte, error) {
+func (p *x509RSAClient) Sign(input []byte) ([]byte, string, error) {
 	signer := Newx509RSASigner()
-	return signer.Sign(input, p.priKey)
-}
-
-func (p *x509RSAClient) SavePrivateKeyToURI(uri string) error {
-	accessor, err := ParseURI(uri)
+	signature, err := signer.Sign(input, p.descriptor.PrivateKey())
 	if err != nil {
-		return err
+		return nil, "", err
 	}
-
-	buf := x509.MarshalPKCS1PrivateKey(p.priKey)
-	keyPem := &pem.Block{
-		Type:  "PRIVATE KEY",
-		Bytes: buf,
-	}
-	key := pem.EncodeToMemory(keyPem)
-
-	err = accessor.Upload(key)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *x509RSAClient) CreateCertificateToURI(uri string, subject *x509Subject) (RSACert, error) {
-	issuor := Newx509RSACertIssuor(p.rootCA, p.priKey)
-	issueSubject := subject
-	if issueSubject == nil {
-		issueSubject = GetDefaultSubject()
-	}
-	cert, err := issuor.Issue(issueSubject)
-	if err != nil {
-		return nil, err
-	}
-	return cert, err
+	return signature, p.descriptor.Certificate(), nil
 }

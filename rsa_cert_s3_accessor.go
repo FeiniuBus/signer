@@ -34,8 +34,11 @@ func ParseS3URI(uri string) (RSACertAccessor, error) {
 	// }
 	// path := strings.Split("/", u.Path)
 	r := &RSACertS3Accessor{
-		Region: u.Host,
 		Bucket: u.Path,
+	}
+
+	if u.Host != "default" {
+		r.Region = u.Host
 	}
 
 	if u.RawQuery == "" {
@@ -61,13 +64,18 @@ func ParseS3URI(uri string) (RSACertAccessor, error) {
 
 func (u *RSACertS3Accessor) Session() *session.Session {
 	var sess *session.Session
-	if u.Profile == "" {
-		sess = session.Must(session.NewSession())
-	} else {
-		sess = session.Must(session.NewSessionWithOptions(session.Options{
-			Profile: u.Profile,
-		}))
+	var options session.Options
+
+	if u.Profile != "" {
+		options.Profile = u.Profile
 	}
+
+	config := aws.NewConfig()
+	config = config.WithRegion(u.Region)
+	options.Config = *config
+
+	sess = session.Must(session.NewSessionWithOptions(options))
+
 	return sess
 }
 
