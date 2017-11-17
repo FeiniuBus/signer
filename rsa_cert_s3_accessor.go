@@ -82,19 +82,19 @@ func (u *RSACertS3Accessor) Session() *session.Session {
 	return sess
 }
 
-func (u *RSACertS3Accessor) Upload(body []byte) error {
+func (u *RSACertS3Accessor) Upload(body []byte) (string, error) {
 	sess := u.Session()
 	uploader := s3manager.NewUploader(sess)
-	_, err := uploader.Upload(&s3manager.UploadInput{
+	output, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(u.Bucket),
 		Key:    aws.String(u.Key),
 		Body:   bytes.NewReader(body),
 		ACL:    aws.String("public-read"),
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return output.Location, nil
 }
 
 func (u *RSACertS3Accessor) Download() ([]byte, error) {

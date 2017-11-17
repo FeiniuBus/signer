@@ -36,22 +36,22 @@ func ResolveFileURI(uri string) (RSACertAccessor, error) {
 	return &RSACertFileAccessor{absolutePath: absolutePath}, nil
 }
 
-func (u *RSACertFileAccessor) Upload(body []byte) error {
+func (u *RSACertFileAccessor) Upload(body []byte) (string, error) {
 	f, err := os.Create(u.absolutePath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer f.Close()
 	writer := bufio.NewWriter(f)
 	_, err = writer.Write(body)
 	if err != nil {
-		return err
+		return "", err
 	}
 	err = writer.Flush()
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return u.absolutePath, nil
 }
 
 func (u *RSACertFileAccessor) Download() ([]byte, error) {

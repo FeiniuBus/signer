@@ -55,7 +55,7 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 				Bytes: buf,
 			}
 			key := pem.EncodeToMemory(keyPem)
-			_ = accessor.Upload(key)
+			_, _ = accessor.Upload(key)
 		}
 		s.mu.Unlock()
 	}
@@ -76,19 +76,19 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 		return nil, err
 	}
 
-	err = accessor.Upload(certificate.GetCertificateBytes())
+	url, err := accessor.Upload(certificate.GetCertificateBytes())
 	if err != nil {
 		return nil, err
 	}
 
-	descriptor := Newx509RSADescriptor(clientID, fileName, s.priKey)
+	descriptor := Newx509RSADescriptor(clientID, url, s.priKey)
 	s.source.AddOrReplace(descriptor)
 
 	file, err := ParseURI(fmt.Sprintf("files://~/.feiniubus/signer/%s_%d_%s.crt", s.Tag(), time.Now().Unix(), clientID))
 	if err != nil {
 		return nil, err
 	}
-	_ = file.Upload(certificate.GetCertificateBytes())
+	_, _ = file.Upload(certificate.GetCertificateBytes())
 
 	s.mu.Unlock()
 	return descriptor, nil
