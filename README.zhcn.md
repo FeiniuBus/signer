@@ -9,6 +9,11 @@
 使用RSA算法和x.509证书的签名服务
 
 ## 如何使用 ?
+* BEFORE ALL : 初始化 S3 选项
+```
+    signer.InitS3Options(APIKEY, APUSECRET, REGION)
+```
+
 * Step 1 : 加载根证书
 ```
     root, err := Parsex509RSACert(**x.509格式的根证书**, **根证书的私钥**)

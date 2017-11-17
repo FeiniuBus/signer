@@ -10,6 +10,11 @@ A high-performance Go(golang) signature algorithm package. Used to sign HTTP req
 This is a signature server using RSA private key and x509 certifacate
 
 ## How to use ?
+* BEFORE ALL : Initialize S3 Options
+```
+    signer.InitS3Options(APIKEY, APUSECRET, REGION)
+```
+
 * Step 1 : Parse your root private key and certificate
 ```
     root, err := Parsex509RSACert(**root certificate bytes (asn1)**, **root private key bytes (asn1)**)
