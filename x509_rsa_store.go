@@ -69,9 +69,9 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 		return nil, err
 	}
 
-	fileName := fmt.Sprintf("%s_%d_%s", s.Tag(), time.Now().Unix(), clientID)
+	fileName := fmt.Sprintf("%s_%d_%s.crt", s.Tag(), time.Now().Unix(), clientID)
 
-	accessor, err := ParseURI(fmt.Sprintf("s3://cn-north-1/%s?key=%s", s.bucket, fileName))
+	accessor, err := ParseURI(fmt.Sprintf("s3://%s/%s?key=%s", GetS3Options().GetRegion(), s.bucket, fileName))
 	if err != nil {
 		return nil, err
 	}

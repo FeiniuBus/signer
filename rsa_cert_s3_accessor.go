@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+
 	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -71,6 +73,7 @@ func (u *RSACertS3Accessor) Session() *session.Session {
 	}
 
 	config := aws.NewConfig()
+	config.Credentials = credentials.NewStaticCredentials(GetS3Options().GetAppId(), GetS3Options().GetAppSecret(), "")
 	config = config.WithRegion(u.Region)
 	options.Config = *config
 
@@ -86,6 +89,7 @@ func (u *RSACertS3Accessor) Upload(body []byte) error {
 		Bucket: aws.String(u.Bucket),
 		Key:    aws.String(u.Key),
 		Body:   bytes.NewReader(body),
+		ACL:    aws.String("public-read"),
 	})
 	if err != nil {
 		return err
