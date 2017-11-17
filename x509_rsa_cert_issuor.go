@@ -26,7 +26,7 @@ func (issuor *x509RSACertIssuor) GetRootCert() RSACert {
 	return issuor.root
 }
 
-func (issuor *x509RSACertIssuor) Issue(subject *x509Subject) (RSACert, error) {
+func (issuor *x509RSACertIssuor) Issue(subject *X509Subject) (RSACert, error) {
 	cer := issuor.buildCertificate(subject)
 
 	ca, err := x509.CreateCertificate(rand.Reader, cer, issuor.GetRootCert().GetCertificate(), &issuor.priKey.PublicKey, issuor.GetRootCert().GetPrivateKey())
@@ -54,7 +54,7 @@ func (issuor *x509RSACertIssuor) Issue(subject *x509Subject) (RSACert, error) {
 	return cert, nil
 }
 
-func (issuor *x509RSACertIssuor) buildCertificate(subject *x509Subject) *x509.Certificate {
+func (issuor *x509RSACertIssuor) buildCertificate(subject *X509Subject) *x509.Certificate {
 
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(rd.Int63()), //证书序列号

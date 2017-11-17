@@ -13,7 +13,7 @@ import (
 
 type x509RSAOneToManyStore struct {
 	rootCert RSACert
-	subject  *x509Subject
+	subject  *X509Subject
 	priKey   *rsa.PrivateKey
 	expire   time.Time
 	mu       sync.Mutex
@@ -103,12 +103,12 @@ const (
 
 type RSAStoreFactory struct {
 	rootCert RSACert
-	subject  *x509Subject
+	subject  *X509Subject
 	tag      string
 	bucket   string
 }
 
-func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *x509Subject) *RSAStoreFactory {
+func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *X509Subject) *RSAStoreFactory {
 	return &RSAStoreFactory{
 		rootCert: rootCert,
 		subject:  subject,
@@ -117,7 +117,7 @@ func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *x5
 	}
 }
 
-func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, rootCertUrl string, subject *x509Subject) (*RSAStoreFactory, error) {
+func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, rootCertUrl string, subject *X509Subject) (*RSAStoreFactory, error) {
 	rootPriKeyAccessor, err := ParseURI(rootPriKeyUrl)
 	if err != nil {
 		return nil, err

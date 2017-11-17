@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type x509Subject struct {
+type X509Subject struct {
 	Country            []string
 	Orianization       []string
 	OrianizationalUnit []string
@@ -19,8 +19,8 @@ type x509Subject struct {
 	IsRoot             bool
 }
 
-func GetDefaultSubject() *x509Subject {
-	return &x509Subject{
+func GetDefaultSubject() *X509Subject {
+	return &X509Subject{
 		Country:            []string{"CN"},
 		Orianization:       []string{"FEINIUBUS"},
 		OrianizationalUnit: []string{"CITADEL"},
