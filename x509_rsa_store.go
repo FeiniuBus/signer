@@ -42,7 +42,7 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 				return nil, err
 			}
 			s.priKey = priKey
-			s.expire = time.Now()
+			s.expire = time.Now().Add(time.Hour * 24 * 7)
 		}
 		s.mu.Unlock()
 	}

@@ -28,7 +28,7 @@ func GetDefaultSubject() *x509Subject {
 		CommonName:         "CITADEL AUTH",
 		Locality:           []string{"CHENGDU"},
 		NotBefore:          time.Now(),
-		NotAfter:           time.Now().Add(time.Hour * 24 * 15),
+		NotAfter:           time.Now().Add(time.Hour * 24 * 30),
 		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:           x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment,
 		IsRoot:             false,
