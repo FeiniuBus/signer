@@ -2,9 +2,9 @@ package signer
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 
@@ -20,7 +20,7 @@ type RSACertS3Accessor struct {
 	Profile string
 }
 
-//ParseS3URI sample : s3://default/sampleBucket/sampleKey?Profile=Profile1 .
+//ParseS3URI sample : s3://default/sampleBucket/?key=sampleKey&profile=Profile1 .
 func ParseS3URI(uri string) (RSACertAccessor, error) {
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -29,25 +29,33 @@ func ParseS3URI(uri string) (RSACertAccessor, error) {
 	if u.Scheme != "s3" {
 		return nil, fmt.Errorf("'s3://' is expected, but the '%s://' is provided", u.Scheme)
 	}
-	if strings.Index("/", u.Path) == -1 || len(strings.Split("/", u.Path)) != 2 {
-		return nil, fmt.Errorf("path '%s' format is incorrect, should be '{Bucket}/{Key}'", u.Path)
-	}
-	path := strings.Split("/", u.Path)
+	// if strings.Index("/", u.Path) == -1 || len(strings.Split("/", u.Path)) != 2 {
+	// 	return nil, fmt.Errorf("path '%s' format is incorrect, should be '{Bucket}/{Key}'", u.Path)
+	// }
+	// path := strings.Split("/", u.Path)
 	r := &RSACertS3Accessor{
 		Region: u.Host,
-		Bucket: path[0],
-		Key:    path[1],
+		Bucket: u.Path,
 	}
-	if u.RawQuery != "" {
-		m, err := url.ParseQuery(u.RawQuery)
-		if err != nil {
-			return nil, err
-		}
-		profile, ok := m["Profile"]
-		if ok {
-			r.Profile = profile[0]
-		}
+
+	if u.RawQuery == "" {
+		return nil, errors.New("query arguments could not be empty")
 	}
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+	key, ok := m["key"]
+	if ok == false {
+		return nil, errors.New("query argument 'key' was required")
+	}
+	r.Key = key[0]
+
+	profile, ok := m["profile"]
+	if ok {
+		r.Profile = profile[0]
+	}
+
 	return r, nil
 }
 
