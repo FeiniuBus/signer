@@ -6,17 +6,17 @@ import (
 	"encoding/pem"
 )
 
-type x509RSAProject struct {
+type x509RSAClient struct {
 	rootCA RSACert
 	priKey *rsa.PrivateKey
 }
 
-func (p *x509RSAProject) Sign(input []byte) ([]byte, error) {
+func (p *x509RSAClient) Sign(input []byte) ([]byte, error) {
 	signer := Newx509RSASigner()
 	return signer.Sign(input, p.priKey)
 }
 
-func (p *x509RSAProject) SavePrivateKeyToURI(uri string) error {
+func (p *x509RSAClient) SavePrivateKeyToURI(uri string) error {
 	accessor, err := ParseURI(uri)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func (p *x509RSAProject) SavePrivateKeyToURI(uri string) error {
 	return nil
 }
 
-func (p *x509RSAProject) CreateCertificateToURI(uri string, subject *x509Subject) (RSACert, error) {
+func (p *x509RSAClient) CreateCertificateToURI(uri string, subject *x509Subject) (RSACert, error) {
 	issuor := Newx509RSACertIssuor(p.rootCA, p.priKey)
 	issueSubject := subject
 	if issueSubject == nil {
