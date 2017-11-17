@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/FeiniuBus/signer.svg?branch=master)](https://travis-ci.org/FeiniuBus/signer)
 
+[中文版本](https://github.com/FeiniuBus/signer/blob/master/README.zhcn.md)
+
 # signer
 
 A high-performance Go(golang) signature algorithm package. Used to sign HTTP requests.
@@ -16,7 +18,7 @@ This is a signature server using RSA private key and x509 certifacate
 * Step 2 : Create a store instance as private key storage
 ** The Store Should Be Singleton, IT'S THREAD SAFE **
 ```
-factory := NewRSAStoreFactory(**Tag (eg. dev)**, "AWS S3 Bucket", **Root cert from Step 1**, **x509 Subject (*signer.x509Subject)**)
+factory := NewRSAStoreFactory(** Tag (eg. dev) **, ** AWS S3 Bucket **, **Root cert from Step 1**, **x509 Subject (*signer.x509Subject)**)
 store, err := factory.Create(x509RSAStore_OneToMany) //x509RSAStore_OneToMany: One private key to many client certificate 
 ```
 
