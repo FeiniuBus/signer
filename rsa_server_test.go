@@ -10,7 +10,7 @@ import (
 
 var store RSAStore
 
-func Test_RSAServer(t *testing.T) {
+func DISABLETest_RSAServer(t *testing.T) {
 	root, err := Parsex509RSACert(getRootCA(), getRootKey())
 	if err != nil {
 		t.Fatal(err)
@@ -35,7 +35,7 @@ func Test_RSAServer(t *testing.T) {
 	time.Sleep(time.Second * 3)
 }
 
-func Test_RSAServerParallel(t *testing.T) {
+func DISABLETest_RSAServerParallel(t *testing.T) {
 	root, err := Parsex509RSACert(getRootCA(), getRootKey())
 	if err != nil {
 		t.Fatal(err)
