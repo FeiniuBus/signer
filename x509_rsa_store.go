@@ -94,11 +94,11 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 	return descriptor, nil
 }
 
-type x509RSAStoreMode int
+type X509RSAStoreMode int
 
 const (
-	_ x509RSAStoreMode = iota
-	x509RSAStore_OneToMany
+	_ X509RSAStoreMode = iota
+	X509RSAStore_OneToMany
 )
 
 type RSAStoreFactory struct {
@@ -144,8 +144,8 @@ func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, roo
 	return NewRSAStoreFactory(tag, bucket, cert, subject), nil
 }
 
-func (factory *RSAStoreFactory) Create(mode x509RSAStoreMode) (RSAStore, error) {
-	if mode == x509RSAStore_OneToMany {
+func (factory *RSAStoreFactory) Create(mode X509RSAStoreMode) (RSAStore, error) {
+	if mode == X509RSAStore_OneToMany {
 		return &x509RSAOneToManyStore{
 			rootCert: factory.rootCert,
 			subject:  factory.subject,
