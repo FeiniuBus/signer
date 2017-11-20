@@ -13,7 +13,7 @@ import (
 
 type x509RSAOneToManyStore struct {
 	rootCert RSACert
-	subject  *x509Subject
+	subject  *X509Subject
 	priKey   *rsa.PrivateKey
 	expire   time.Time
 	mu       sync.Mutex
@@ -94,21 +94,21 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 	return descriptor, nil
 }
 
-type x509RSAStoreMode int
+type X509RSAStoreMode int
 
 const (
-	_ x509RSAStoreMode = iota
-	x509RSAStore_OneToMany
+	_ X509RSAStoreMode = iota
+	X509RSAStore_OneToMany
 )
 
 type RSAStoreFactory struct {
 	rootCert RSACert
-	subject  *x509Subject
+	subject  *X509Subject
 	tag      string
 	bucket   string
 }
 
-func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *x509Subject) *RSAStoreFactory {
+func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *X509Subject) *RSAStoreFactory {
 	return &RSAStoreFactory{
 		rootCert: rootCert,
 		subject:  subject,
@@ -117,7 +117,7 @@ func NewRSAStoreFactory(tag string, bucket string, rootCert RSACert, subject *x5
 	}
 }
 
-func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, rootCertUrl string, subject *x509Subject) (*RSAStoreFactory, error) {
+func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, rootCertUrl string, subject *X509Subject) (*RSAStoreFactory, error) {
 	rootPriKeyAccessor, err := ParseURI(rootPriKeyUrl)
 	if err != nil {
 		return nil, err
@@ -144,8 +144,8 @@ func NewRSAStoreFactoryFrom(tag string, bucket string, rootPriKeyUrl string, roo
 	return NewRSAStoreFactory(tag, bucket, cert, subject), nil
 }
 
-func (factory *RSAStoreFactory) Create(mode x509RSAStoreMode) (RSAStore, error) {
-	if mode == x509RSAStore_OneToMany {
+func (factory *RSAStoreFactory) Create(mode X509RSAStoreMode) (RSAStore, error) {
+	if mode == X509RSAStore_OneToMany {
 		return &x509RSAOneToManyStore{
 			rootCert: factory.rootCert,
 			subject:  factory.subject,
