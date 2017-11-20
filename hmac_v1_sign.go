@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	authHeaderPrefix  = "FNBUS1-HMAC-SHA256"
+	HMACV1Scheme      = "FNBUS1-HMAC-SHA256"
 	timeFormat        = "20060102T150405Z"
 	shortTimeFormat   = "20060102"
 	emptyStringSHA256 = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
@@ -160,7 +160,7 @@ func (ctx *signingCtx) build(disableHeaderHoisting bool) *HMACSigningResult {
 	ctx.buildSignature()
 
 	parts := []string{
-		authHeaderPrefix + " Credential=" + ctx.identifier + "/" + ctx.credentialString,
+		HMACV1Scheme + " Credential=" + ctx.identifier + "/" + ctx.credentialString,
 		"SignedHeaders=" + ctx.signedHeaders,
 		"Signature=" + ctx.signature,
 	}
@@ -256,7 +256,7 @@ func (ctx *signingCtx) buildCanonicalString() {
 
 func (ctx *signingCtx) buildStringToSign() {
 	ctx.stringToSign = strings.Join([]string{
-		authHeaderPrefix,
+		HMACV1Scheme,
 		ctx.formattedTime,
 		ctx.credentialString,
 		hex.EncodeToString(makeSha256([]byte(ctx.canonicalString))),

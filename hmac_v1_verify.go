@@ -44,7 +44,7 @@ func (v1 *HMACValidatorV1) Verify(r *Request) bool {
 	if len(parts) != 2 {
 		return false
 	}
-	if parts[0] != authHeaderPrefix {
+	if parts[0] != HMACV1Scheme {
 		return false
 	}
 
@@ -148,7 +148,7 @@ func (ctx *verifyCtx) buildSignature() {
 
 func (ctx *verifyCtx) buildStringToSign() {
 	ctx.stringToSign = strings.Join([]string{
-		authHeaderPrefix,
+		HMACV1Scheme,
 		ctx.formattedTime,
 		ctx.credentialString,
 		hex.EncodeToString(makeSha256([]byte(ctx.canonicalString))),
