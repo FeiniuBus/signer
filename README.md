@@ -40,6 +40,14 @@ signature, key, err := client.Sign([]byte("testing"))
 //key: key of x509 certificate uploaded to AWS S3 Service
 ```
 
+* `new` Sign string array data as ASN.1 encoding
+```
+signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")
+//Arguments[0]: Type of ASN.1 Declaration, eg. 'SAMPLE MESSAGE'
+//Arguments[...]: strings need sign later, client will encode them to ASN.1 encoding. 
+
+```
+
 ## How to verfy ?
 We are using openssl signature, almost supported by any program launguage.
 
@@ -52,3 +60,16 @@ We are using openssl signature, almost supported by any program launguage.
 * RSA Key Encoding : ASN.1
 * Client Certificate Format : x.509
 * Client Certificate Encoding : ASN.1
+
+* Here is the parameters of ASN1Sign :
+* Separator: \r\n
+* ASN.1 Declaration Type Auto Turn Upper : enabled
+* Single line max length : 64 letters
+
+## How to get root certificates ?
+* Run in bash
+```bash
+openssl genrsa -out rsakey.pem 2048 && \
+openssl rsa -in rsakey.pem -pubout -out rsakey.pub && \
+openssl req -x509 -new -days 365 -key rsakey.pem -out rootcert.crt
+```

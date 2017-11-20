@@ -39,6 +39,14 @@ signature, key, err := client.Sign([]byte("testing"))
 //key: x.509 证书上传到亚马逊S3服务时使用的KEY
 ```
 
+* `new` 为ASN.1编码的字符串数组签名
+```
+signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")
+//Arguments[0]: ASN.1声明的自定义类型，如 "SAMPLE MESSAGE"
+//Arguments[...]: 需要签名的字符串数组，这个字符串将会被格式化并编码为ASN.1，然后进行签名
+
+```
+
 ## 如何验签 ?
 本服务使用的是 OpenSSL 签名方式， 绝大部分编程语言都支持此方式。
 
@@ -51,6 +59,11 @@ signature, key, err := client.Sign([]byte("testing"))
 * 客户端证书密钥编码 : ASN.1
 * 客户端证书格式 : x.509
 * 客户端证书编码 : ASN.1
+
+* 这是ASN1Sign相关的参数 :
+* 格式化分隔符: \r\n
+* 自定义类型声明自动大写: 已启用
+* 单行最大长度：64字符
 
 ## 如何获得根证书 ?
 * 可以在Linux运行以下命令生成OpenSSL根证书
