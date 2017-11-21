@@ -99,6 +99,7 @@ type X509RSAStoreMode int
 const (
 	_ X509RSAStoreMode = iota
 	X509RSAStore_OneToMany
+	X509RSAStore_Test
 )
 
 type RSAStoreFactory struct {
@@ -151,6 +152,14 @@ func (factory *RSAStoreFactory) Create(mode X509RSAStoreMode) (RSAStore, error) 
 			subject:  factory.subject,
 			tag:      factory.tag,
 			bucket:   factory.bucket,
+			expire:   time.Now().Add(time.Hour * -1),
+			source:   NewRSADescriptorCollection(),
+		}, nil
+	} else if mode == X509RSAStore_Test {
+		return &x509RSATestStore{
+			rootCert: factory.rootCert,
+			subject:  factory.subject,
+			tag:      factory.tag,
 			expire:   time.Now().Add(time.Hour * -1),
 			source:   NewRSADescriptorCollection(),
 		}, nil

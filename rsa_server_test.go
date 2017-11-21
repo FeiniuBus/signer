@@ -10,7 +10,7 @@ import (
 
 var store RSAStore
 
-func DISABLETest_RSAServer(t *testing.T) {
+func Test_RSAServer(t *testing.T) {
 
 	root, err := Parsex509RSACert(getRootCA(), getRootKey())
 	if err != nil {
@@ -18,7 +18,7 @@ func DISABLETest_RSAServer(t *testing.T) {
 	}
 
 	factory := NewRSAStoreFactory("test", "polaris/Certificates", root, GetDefaultSubject())
-	store, err := factory.Create(X509RSAStore_OneToMany)
+	store, err := factory.Create(X509RSAStore_Test)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func DISABLETest_RSAServer(t *testing.T) {
 	time.Sleep(time.Second * 3)
 }
 
-func DISABLETest_RSAServerParallel(t *testing.T) {
+func Test_RSAServerParallel(t *testing.T) {
 
 	root, err := Parsex509RSACert(getRootCA(), getRootKey())
 	if err != nil {
@@ -44,7 +44,7 @@ func DISABLETest_RSAServerParallel(t *testing.T) {
 	}
 
 	factory := NewRSAStoreFactory("test", "polaris/Certificates", root, GetDefaultSubject())
-	store, err := factory.Create(X509RSAStore_OneToMany)
+	store, err := factory.Create(X509RSAStore_Test)
 	if err != nil {
 		t.Fatal(err)
 	}
