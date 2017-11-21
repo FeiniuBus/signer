@@ -1,6 +1,7 @@
 package signer
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -41,6 +42,35 @@ func TestSignPutRequest(t *testing.T) {
 		return "SECRET", nil
 	}, func(v *HMACValidatorV1) {
 		v.Logger, _ = log.New(false)
+	})
+
+	assert.True(t, validator.Verify(req), "Expect is true")
+}
+
+func TestCSharpValidator(t *testing.T) {
+	b := `{"name":"config_appsettings","env":"Development","attrs":{"mysql_profile":"mysql","mysql_db":"feiniubus_app_version","mysql_env":"Development","redis_profile":"redis","redis_db":"2","redis_env":"Development","mongo_profile":"mongo","mongo_env":"Development","mongo_db":"system_config"},"lang":"CSharp"}`
+	uri, _ := url.Parse("http://172.16.2.117:5100/cc/v1/fetch")
+
+	header := make(http.Header)
+	header.Set("Accept", "application/json")
+	header.Set("Host", "172.16.2.117:5100")
+	header.Set("User-Agent", "Polaris-sdk-dotnet-coreclr/.NET_CORE/4.6.00001.0 OS/Darwin_17.2.0_Darwin_Kernel_Version_17.2.0:_Fri_Sep_29_18:27:05_PDT_2017;_root:xnu-4570.20.62~3/RELEASE_X86_64")
+	header.Set("Connection", "keep-alive")
+	header.Set("Accept-Encoding", "gzip")
+	header.Set("X-FeiniuBus-Date", "20171121T104103Z")
+	header.Set("Content-Type", "application/json")
+	header.Set("Content-Length", "302")
+	header.Set("Authorization", "FNBUS1-HMAC-SHA256 Credential=11E7BEAB19F97FF1878AFA163EE05ADE/20171121/feiniubus_request,SignedHeaders=accept;accept-encoding;connection;content-type;host;user-agent,Signature=6b4ec6f5d845aa5b0587ff64d0448fdc41393c8977f471c7a7f14503a8dc12e1")
+
+	req := &Request{
+		Body:   bytes.NewReader([]byte(b)),
+		URL:    uri,
+		Method: "POST",
+		Header: header,
+	}
+
+	validator := NewHMACValidatorV1(func(id string) (string, error) {
+		return "3a57527a8b38f4ddf86609cfba26f86bef045186d59b4994487437947ba733d2", nil
 	})
 
 	assert.True(t, validator.Verify(req), "Expect is true")
