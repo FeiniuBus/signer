@@ -20,6 +20,11 @@ func (p *x509RSAClient) Sign(input []byte) ([]byte, string, error) {
 	return signature, p.descriptor.Certificate(), nil
 }
 
+func (p *x509RSAClient) StringsSign(separator string, payloads ...string) ([]byte, string, error) {
+	payload := strings.Join(payloads, separator)
+	return p.Sign([]byte(payload))
+}
+
 func (p *x509RSAClient) ASN1Sign(typ string, payloads ...string) ([]byte, string, error) {
 	payload := strings.Join(payloads, "\r\n")
 	block := &pem.Block{
