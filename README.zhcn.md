@@ -39,6 +39,11 @@ signature, key, err := client.Sign([]byte("testing"))
 //key: x.509 证书上传到亚马逊S3服务时使用的KEY
 ```
 
+* `new` 为默认字符集编码的字符串数组签名
+signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")
+//Arguments[0]: 分隔符
+//Arguments[...]: 需要签名的字符串数组，这个字符串将会被格式化并编码为默认字符集（UTF8），然后进行签名
+
 * `new` 为ASN.1编码的字符串数组签名
 ```
 signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")

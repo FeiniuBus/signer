@@ -40,9 +40,14 @@ signature, key, err := client.Sign([]byte("testing"))
 //key: key of x509 certificate uploaded to AWS S3 Service
 ```
 
+* `new` Sign string array data as default encoding
+signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")
+//Arguments[0]: separator
+//Arguments[...]: strings need sign later, client will encode them to default(utf8) encoding. 
+
 * `new` Sign string array data as ASN.1 encoding
 ```
-signature, key, err := client.ASN1Sign("Type Lable","section1","section2","section3","section4")
+signature, key, err := client.StringsSign("\r\n","section1","section2","section3","section4")
 //Arguments[0]: Type of ASN.1 Declaration, eg. 'SAMPLE MESSAGE'
 //Arguments[...]: strings need sign later, client will encode them to ASN.1 encoding. 
 
