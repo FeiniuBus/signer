@@ -98,8 +98,8 @@ func TestValidator(t *testing.T) {
 
 func TestSignGetRequest(t *testing.T) {
 	values := url.Values{}
-	values.Set("id", "uuid")
-	values.Set("type", "Topic")
+	values.Set("type", "uuid")
+	values.Set("id", "Topic")
 
 	req := buildGetRequest(values)
 	signer := buildSigner()
