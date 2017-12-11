@@ -24,8 +24,8 @@ type x509RSAOneToManyStore struct {
 
 func (s *x509RSAOneToManyStore) SetTag(tag string) {
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.tag = tag
-	s.mu.Unlock()
 }
 
 func (s *x509RSAOneToManyStore) Tag() string {
@@ -37,29 +37,36 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 		return s.source.FirstClientID(clientID), nil
 	}
 	if s.expire.Unix() <= time.Now().Unix() {
-		s.mu.Lock()
-		if s.expire.Unix() <= time.Now().Unix() {
-			priKey, err := rsa.GenerateKey(rand.Reader, 2048)
-			if err != nil {
-				return nil, err
+		err := func() error {
+			s.mu.Lock()
+			defer s.mu.Unlock()
+			if s.expire.Unix() <= time.Now().Unix() {
+				priKey, err := rsa.GenerateKey(rand.Reader, 2048)
+				if err != nil {
+					return err
+				}
+				s.priKey = priKey
+				s.expire = time.Now().Add(time.Hour * 24 * 7)
+				accessor, err := ParseURI(fmt.Sprintf("files://~/.feiniubus/signer/%s_%d_%s.pem", s.Tag(), time.Now().Unix(), clientID))
+				if err != nil {
+					return err
+				}
+				buf := x509.MarshalPKCS1PrivateKey(s.priKey)
+				keyPem := &pem.Block{
+					Type:  "PRIVATE KEY",
+					Bytes: buf,
+				}
+				key := pem.EncodeToMemory(keyPem)
+				_, _ = accessor.Upload(key)
 			}
-			s.priKey = priKey
-			s.expire = time.Now().Add(time.Hour * 24 * 7)
-			accessor, err := ParseURI(fmt.Sprintf("files://~/.feiniubus/signer/%s_%d_%s.pem", s.Tag(), time.Now().Unix(), clientID))
-			if err != nil {
-				return nil, err
-			}
-			buf := x509.MarshalPKCS1PrivateKey(s.priKey)
-			keyPem := &pem.Block{
-				Type:  "PRIVATE KEY",
-				Bytes: buf,
-			}
-			key := pem.EncodeToMemory(keyPem)
-			_, _ = accessor.Upload(key)
+			return nil
+		}()
+		if err != nil {
+			return nil, err
 		}
-		s.mu.Unlock()
 	}
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.source.AnyClientID(clientID) {
 		return s.source.FirstClientID(clientID), nil
 	}
@@ -90,7 +97,6 @@ func (s *x509RSAOneToManyStore) Certificate(clientID string) (RSADescriptor, err
 	}
 	_, _ = file.Upload(certificate.GetCertificateBytes())
 
-	s.mu.Unlock()
 	return descriptor, nil
 }
 

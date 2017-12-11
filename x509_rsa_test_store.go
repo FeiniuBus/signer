@@ -19,8 +19,8 @@ type x509RSATestStore struct {
 
 func (s *x509RSATestStore) SetTag(tag string) {
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.tag = tag
-	s.mu.Unlock()
 }
 
 func (s *x509RSATestStore) Tag() string {
@@ -32,18 +32,25 @@ func (s *x509RSATestStore) Certificate(clientID string) (RSADescriptor, error) {
 		return s.source.FirstClientID(clientID), nil
 	}
 	if s.expire.Unix() <= time.Now().Unix() {
-		s.mu.Lock()
-		if s.expire.Unix() <= time.Now().Unix() {
-			priKey, err := rsa.GenerateKey(rand.Reader, 2048)
-			if err != nil {
-				return nil, err
+		err := func() error {
+			s.mu.Lock()
+			defer s.mu.Unlock()
+			if s.expire.Unix() <= time.Now().Unix() {
+				priKey, err := rsa.GenerateKey(rand.Reader, 2048)
+				if err != nil {
+					return err
+				}
+				s.priKey = priKey
+				s.expire = time.Now().Add(time.Hour * 24 * 7)
 			}
-			s.priKey = priKey
-			s.expire = time.Now().Add(time.Hour * 24 * 7)
+			return nil
+		}()
+		if err != nil {
+			return nil, err
 		}
-		s.mu.Unlock()
 	}
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.source.AnyClientID(clientID) {
 		return s.source.FirstClientID(clientID), nil
 	}
@@ -56,6 +63,5 @@ func (s *x509RSATestStore) Certificate(clientID string) (RSADescriptor, error) {
 	descriptor := Newx509RSADescriptor(clientID, "", s.priKey)
 	s.source.AddOrReplace(descriptor)
 
-	s.mu.Unlock()
 	return descriptor, nil
 }

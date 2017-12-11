@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"math/big"
 )
 
@@ -36,6 +37,9 @@ func Parsex509RSACert(certificateBytes []byte, privateKeyBytes []byte) (RSACert,
 
 func ParseX509Certificate(bytes []byte) (*x509.Certificate, error) {
 	block, _ := pem.Decode(bytes)
+	if block == nil {
+		return nil, errors.New("ParseX509Certificate: pem format incorrect")
+	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return nil, err
@@ -45,6 +49,9 @@ func ParseX509Certificate(bytes []byte) (*x509.Certificate, error) {
 
 func ParseRsaPrivateKey(bytes []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(bytes)
+	if block == nil {
+		return nil, errors.New("ParseRsaPrivateKey: pem format incorrect")
+	}
 	pri, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
