@@ -244,6 +244,7 @@ func (ctx *signingCtx) buildCanonicalString() {
 		uri = ctx.URL.EscapedPath()
 	}
 
+	ctx.URL.RawQuery = strings.Replace(ctx.Query.Encode(), "+", "%20", -1)
 	ctx.canonicalString = strings.Join([]string{
 		ctx.Method,
 		uri,

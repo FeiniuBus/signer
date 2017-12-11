@@ -161,6 +161,7 @@ func (ctx *verifyCtx) buildCanonicalString() {
 		uri = ctx.URL.EscapedPath()
 	}
 
+	ctx.URL.RawQuery = ctx.Query.Encode()
 	ctx.canonicalString = strings.Join([]string{
 		ctx.Method,
 		uri,
